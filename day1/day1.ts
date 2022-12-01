@@ -1,20 +1,14 @@
 import { readFileSync } from "fs";
 
+function sum(ns: number[]): number {
+    return ns.reduce((s, n) => s + n);
+}
+
 export function parse_input(input: string): number[] {
-    const elves: number[] = [];
-    let current = 0;
-    for (const line of input.split("\n")) {
-        if (line.length == 0) {
-            elves.push(current);
-            current = 0;
-        } else {
-            current += +line;
-        }
-    }
-    if (current > 0) {
-        elves.push(current);
-    }
-    return elves;
+    const groups = input.split("\n\n");
+    return groups.map((g) => 
+        sum(g.split("\n").map((line) => +line))
+    );
 }
 
 export function part1(elves: number[]): number {
@@ -23,7 +17,7 @@ export function part1(elves: number[]): number {
 
 export function part2(elves: number[]): number {
     const sorted = elves.sort((n1, n2) => n2 - n1);
-    return sorted.slice(0, 3).reduce((sum, n) => sum + n);
+    return sum(sorted.slice(0, 3));
 }
 
 const input = readFileSync("input.txt", "utf8").toString();
