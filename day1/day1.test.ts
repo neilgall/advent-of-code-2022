@@ -1,8 +1,8 @@
-import { parse_input, part1, part2 } from "./day1";
+import { parseInput, part1, part2 } from "./day1";
 
 describe("parser", () => {
     it("reads the test data", () => {
-        const elves = parse_input(
+        const elves = parseInput(
 `1000
 2000
 3000

@@ -4,7 +4,7 @@ function sum(ns: number[]): number {
     return ns.reduce((s, n) => s + n);
 }
 
-export function parse_input(input: string): number[] {
+export function parseInput(input: string): number[] {
     const groups = input.split("\n\n");
     return groups.map((g) => 
         sum(g.split("\n").map((line) => +line))
@@ -21,7 +21,7 @@ export function part2(elves: number[]): number {
 }
 
 const input = readFileSync("input.txt", "utf8").toString();
-const elves = parse_input(input);
+const elves = parseInput(input);
 
 console.log(`Part 1: ${part1(elves)}`);
 console.log(`Part 2: ${part2(elves)}`);
