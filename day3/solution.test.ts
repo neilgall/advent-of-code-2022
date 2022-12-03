@@ -1,8 +1,11 @@
 import { 
     parseInput,
+    group,
     findCommonItem,
+    findGroupBadge,
     priority,
     part1,
+    part2,
 } from "./solution";
 
 const testInput =
@@ -59,5 +62,14 @@ describe("part1", () => {
 
 
 describe("part2", () => {
+    it("finds the badge for a group", () => {
+        const rs = parseInput(testInput);
+        const gs = group(rs);
+        expect(findGroupBadge(gs[0])).toBe("r");
+        expect(findGroupBadge(gs[1])).toBe("Z");
+    });
 
+    it("calculates for the test input", () => {
+        expect(part2(testInput)).toBe(70);
+    });
 });
