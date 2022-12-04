@@ -36,11 +36,19 @@ export function rangesOverlapCompletely({ range1, range2 }: Pair): boolean {
         || (range2.min <= range1.min && range1.max <= range2.max);
 }
 
+export function rangesOverlap({ range1, range2 }: Pair): boolean {
+    return (range1.min <= range2.min && range2.min <= range1.max)
+        || (range1.min <= range2.max && range2.max <= range1.max)
+        || (range2.min <= range1.min && range1.min <= range2.max)
+        || (range2.min <= range1.max && range1.max <= range2.max);
+}
+
 export function part1(input: string): number {
     const pairs = parseInput(input);
     return pairs.filter(rangesOverlapCompletely).length;
 }
 
 export function part2(input: string): number {
-    return 0;
+    const pairs = parseInput(input);
+    return pairs.filter(rangesOverlap).length;
 }

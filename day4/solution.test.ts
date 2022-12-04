@@ -3,8 +3,9 @@ import {
     parsePair, 
     parseRange, 
     rangesOverlapCompletely,
+    rangesOverlap,
     part1,
-    part2
+    part2,
 } from "./solution";
 
 const testInput = 
@@ -52,7 +53,7 @@ describe("part1", () => {
         ["2-8,3-7", true],
         ["6-6,4-6", true],
         ["2-6,4-8", false],
-    ])("detects overlap in %s", (input, expected) => {
+    ])("detects complete overlap in %s", (input, expected) => {
         const pair = parsePair(input);
         expect(pair).toBeDefined();
         expect(rangesOverlapCompletely(pair!)).toBe(expected);
@@ -65,5 +66,20 @@ describe("part1", () => {
 
 
 describe("part2", () => {
+    it.each([
+        ["2-4,6-8", false],
+        ["2-3,4-5", false],
+        ["5-7,7-9", true],
+        ["2-8,3-7", true],
+        ["6-6,4-6", true],
+        ["2-6,4-8", true],
+    ])("detects overlap in %s", (input, expected) => {
+        const pair = parsePair(input);
+        expect(pair).toBeDefined();
+        expect(rangesOverlap(pair!)).toBe(expected);
+    });
 
+    it("calculates the correct answer", () => {
+        expect(part2(testInput)).toBe(4);
+    })
 });
