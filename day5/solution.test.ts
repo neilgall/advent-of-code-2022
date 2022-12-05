@@ -2,7 +2,9 @@ import {
     parseStacks,
     parseMoves,
     applyMove,
-    part1
+    applyMove2,
+    part1,
+    part2
 } from "./solution";
 
 const testInput = 
@@ -63,7 +65,32 @@ describe("applyMove", () => {
             ["Z", "N", "D", "P"],
             [], [], [], [], [], []
         ]);
-    
+    }); 
+});
+
+describe("applyMove2", () => {
+    it("applies the first move", () => {
+        const stacks = parseStacks(testInput);
+        const moves = parseMoves(testInput);
+        const s = applyMove2(stacks, moves[0]);
+        expect(s).toStrictEqual([
+            ["D", "N", "Z"],
+            ["C", "M"],
+            ["P"],
+            [], [], [], [], [], []
+        ]);
+    });
+
+    it("applies the second move", () => {
+        const stacks = parseStacks(testInput);
+        const moves = parseMoves(testInput);
+        const s = applyMove2(applyMove2(stacks, moves[0]), moves[1]);
+        expect(s).toStrictEqual([
+            [],
+            ["C", "M"],
+            ["D", "N", "Z", "P"],
+            [], [], [], [], [], []
+        ]);
     }); 
 });
 
@@ -73,5 +100,5 @@ describe("part1", () => {
 
 
 describe("part2", () => {
-
+    expect(part2(testInput)).toBe("MCD");
 });

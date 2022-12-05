@@ -51,6 +51,15 @@ export function applyMove(stacks: Stacks, move: Move): Stacks {
     return s;
 }
 
+export function applyMove2(stacks: Stacks, move: Move): Stacks {
+    const s = [...stacks];
+    const from = move.from - 1;
+    const to = move.to - 1;
+    s[to] = [ ...s[from].slice(0, move.count), ...s[to] ];
+    s[from] = s[from].slice(move.count);
+    return s;
+}
+
 export function part1(input: string): string {
     const moves = parseMoves(input);
     let stacks = parseStacks(input);
@@ -62,6 +71,13 @@ export function part1(input: string): string {
     return stacks.map((s) => s[0]).join("");
 }
 
-export function part2(input: string): number {
-    return 0;
+export function part2(input: string): string {
+    const moves = parseMoves(input);
+    let stacks = parseStacks(input);
+    
+    for (const move of moves) {
+        stacks = applyMove2(stacks, move);    
+    }
+
+    return stacks.map((s) => s[0]).join("");
 }
