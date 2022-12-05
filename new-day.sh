@@ -16,3 +16,6 @@ test ! -d "$dir" || fail "${dir} already exists"
 
 cp -R template "day${day}"
 sed -i "s/dayX/${dir}/" "${dir}/package.json"
+
+cd "${dir}"
+npm install
