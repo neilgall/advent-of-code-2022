@@ -1,4 +1,6 @@
-export type Entry = {
+import { sum } from "./utils";
+
+export type Result = {
     type: "file";
     name: string;
     size: number;
@@ -16,7 +18,7 @@ export type Command = {
     type: "root"
 } | {
     type: "list",
-    results: Entry[];
+    results: Result[];
 };
 
 export function parseInput(input: string): Command[] {
@@ -46,6 +48,8 @@ export function parseInput(input: string): Command[] {
             default:
                 if (line.startsWith("$ cd ")) {
                     newState.current = { type: "in", dest: line.slice(5).trim() };
+                } else {
+                    throw new Error(`can't parse line ${line}`);
                 }
                 break;
         }
@@ -68,18 +72,112 @@ export function parseInput(input: string): Command[] {
                 current: { type: "list", results: newResults }
             };
         } else {
-            return state;
+            throw new Error(`can't understand line ${line} in state ${state.current}`);
         }
     };
     
-    const finalState = input.split("\n")
+    const finalState = input.trim().split("\n")
         .reduce(parseLine, { commands: [] });
 
     return finishCommand(finalState).commands;
 }
 
+export type Entry = {
+    type: "file";
+    name: string;
+    size: number;
+} | {
+    type: "dir";
+    name: string;
+    path: string[];
+    entries: Entry[];
+};
+
+export type DirEntry = Entry & { type: "dir" };
+export type Path = Entry[];
+
+export function resultToEntry(r: Result, path: Path): Entry {
+    return (r.type === "file")
+        ? r
+        : { ...r, path: path?.map((p) => p.name), entries: [] };
+}
+
+export function buildDirectoryTree(commands: Command[]): DirEntry {
+    const root: DirEntry = { type: "dir", name: "", path: [], entries: [] };
+    let path = [root];
+    let current = root;
+    for (const command of commands) {
+        switch (command.type) {
+            case "root": {
+                current = root;
+                path = [root];
+                break;
+            }
+            case "in": {
+                const match: Entry | undefined = current?.entries.find((e) => e.name === command.dest);
+                if (match?.type === "dir") {
+                    current = match;
+                    path.push(current);
+                } else {
+                    throw new Error(`cd to file ${command.dest} from ${path.join("/")}`);
+                }
+                break;
+            }
+            case "out": {
+                if (current?.path) {
+                    path.pop();
+                    current = path[path.length-1];
+                } else {
+                    throw new Error("popped too far!");
+                }
+                break;
+            }
+            case "list": {
+                current.entries = [
+                    ...current.entries, 
+                    ...command.results.map((r) => resultToEntry(r, path))
+                ];
+                break;
+            }
+        }
+    }
+    return root;
+}
+
+export type DirSizes = Record<string, number>;
+
+export function directorySizes(root: DirEntry): DirSizes {
+    function walkTree(entry: DirEntry, sizes: DirSizes): number {
+        let size = 0;
+        for (const e of entry.entries) {
+            if (e.type === "file") {
+                size += e.size;
+            } else {
+                size += walkTree(e, sizes);
+            }
+        }
+        const name = entry.path.join("/") + "/" + entry.name;
+        if (sizes[name] !== undefined) {
+            throw new Error(`duplicate path ${name}`);
+        }
+
+        sizes[name] = size;
+        return size;
+    }
+
+    const results: DirSizes = {};
+    walkTree(root, results);
+    return results;
+}
+
 export function part1(input: string): number {
-    return 0;
+    const filterSizes = (sizes: DirSizes): [string, number][] => 
+        Object.entries(sizes)
+        .filter(([_, size]: [string, number]) => size <= 100_000);
+
+    const tree = buildDirectoryTree(parseInput(input));
+    const smallDirs = filterSizes(directorySizes(tree));
+    return sum(smallDirs.map(([_, size]) => size));
 }
 
 export function part2(input: string): number {
