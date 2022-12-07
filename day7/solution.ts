@@ -170,10 +170,12 @@ export function directorySizes(root: DirEntry): DirSizes {
     return results;
 }
 
+type NameSizePair = [string, number];
+
 export function part1(input: string): number {
-    const filterSizes = (sizes: DirSizes): [string, number][] => 
+    const filterSizes = (sizes: DirSizes): NameSizePair[] => 
         Object.entries(sizes)
-        .filter(([_, size]: [string, number]) => size <= 100_000);
+        .filter(([_, size]: NameSizePair) => size <= 100_000);
 
     const tree = buildDirectoryTree(parseInput(input));
     const smallDirs = filterSizes(directorySizes(tree));
@@ -181,5 +183,17 @@ export function part1(input: string): number {
 }
 
 export function part2(input: string): number {
-    return 0;
+    const tree = buildDirectoryTree(parseInput(input));
+    const sizes = directorySizes(tree);
+    const needed = 70_000_000 - sizes["/"];
+    const needToFree = 30_000_000 - needed;
+
+    const filterSizes = (sizes: DirSizes): NameSizePair[] => 
+        Object.entries(sizes)
+        .filter(([_, size]: NameSizePair) => size >= needToFree);
+
+    const bigDirs = filterSizes(sizes)
+        .sort(([x, a]: NameSizePair, [y, b]: NameSizePair) => a - b);
+
+    return bigDirs[0][1];
 }

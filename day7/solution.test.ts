@@ -7,6 +7,7 @@ import {
     buildDirectoryTree, 
     directorySizes,
     part1,
+    part2,
 } from "./solution";
 
 const testInput=
@@ -135,20 +136,22 @@ describe("directorySizes", () => {
         const tree = buildDirectoryTree(parseInput(testInput));
         expect(directorySizes(tree)).toStrictEqual({
             "/a/e": 584,
-            "/a": 94853,
-            "/d": 24933642,
-            "/": 48381165
+            "/a": 94_853,
+            "/d": 24_933_642,
+            "/": 48_381_165
         });
-    })
+    });
 });
 
 describe("part1", () => {
     it("calculates the correct answer", () => {
-        expect(part1(testInput)).toBe(95437);
-    })
+        expect(part1(testInput)).toBe(95_437);
+    });
 });
 
 
 describe("part2", () => {
-
+    it("calculates the correct answer", () => {
+        expect(part2(testInput)).toBe(24_933_642);
+    })
 });
