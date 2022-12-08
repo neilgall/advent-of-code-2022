@@ -2,6 +2,8 @@ import {
     parseInput,
     part1,
     part2,
+    Point,
+    scenicScore,
 } from "./solution";
 
   const testInput = 
@@ -38,7 +40,16 @@ describe("part1", () => {
 
 
 describe("part2", () => {
+    const forest = parseInput(testInput);
+
+    it.each([
+        [{ x: 2, y: 1 }, 4],
+        [{ x: 2, y: 3 }, 8],
+    ])("calculates scenic scores", (p: Point, expected: number) => {
+        expect(scenicScore(forest, p)).toBe(expected);
+    });
+
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(8);
     });
 });

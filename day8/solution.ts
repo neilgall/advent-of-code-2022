@@ -74,6 +74,30 @@ export function part1(input: string): number {
     return count;
 }
 
+export function scenicScoreInDir(f: Forest, h: Height, p: Point, move: Move): number {
+    if (p.x < 0 || p.y < 0 || p.x >= f.width || p.y >= f.height) {
+        return 0;
+    }
+    return heightAt(f, p) >= h
+        ? 1
+        : 1 + scenicScoreInDir(f, h, move(p), move);
+}
+
+export function scenicScore(f: Forest, p: Point): number {
+    const h = heightAt(f, p);
+    return scenicScoreInDir(f, h, up(p), up)
+         * scenicScoreInDir(f, h, down(p), down)
+         * scenicScoreInDir(f, h, left(p), left)
+         * scenicScoreInDir(f, h, right(p), right);
+}
+
 export function part2(input: string): number {
-    return 0;
+    const f = parseInput(input);
+    let bestScore = 0;
+    for (let y = 0; y < f.height; ++y) {
+        for (let x = 0; x < f.width; ++x) {
+            bestScore = Math.max(bestScore, scenicScore(f, { x, y }));
+        }
+    }
+    return bestScore;
 }
