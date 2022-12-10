@@ -20,6 +20,16 @@ D 1
 L 5
 R 2`;
 
+const testInput2 =
+`R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`;
+
 describe("parseInput", () => {
     it("parses the input", () => {
         expect(parseInput(testInput)).toStrictEqual([
@@ -98,6 +108,7 @@ describe("part1", () => {
 
 describe("part2", () => {
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(1);
+        expect(part2(testInput2)).toBe(36);
     });
 });

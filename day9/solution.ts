@@ -56,8 +56,7 @@ export function movePoint(p: Point, dir: Direction): Point {
 }
 
 export type Grid = {
-    head: Point;
-    tail: Point;
+    knots: Point[];
     visited: Set<string>;
 };
 
@@ -88,10 +87,13 @@ export function moveTail(head: Point, tail: Point): Point {
 }
 
 export function applyMove(g: Grid, d: Direction): Grid {
-    const head = movePoint(g.head, d);
-    const tail = moveTail(g.head, g.tail);
-    const visited = g.visited.add(pointKey(tail));
-    return { head, tail, visited };
+    const knots = [movePoint(g.knots[0], d)];
+    for (let i = 1; i < g.knots.length; ++i) {
+        knots.push(moveTail(knots[i-1], g.knots[i]));
+    }
+    const tail = pointKey(knots[knots.length - 1]);
+    const visited = g.visited.add(tail);
+    return { knots, visited };
 }
 
 export function applyMoves(g: Grid, ms: Move[]): Grid {
@@ -104,10 +106,13 @@ export function applyMoves(g: Grid, ms: Move[]): Grid {
     return grid;
 }
 
-function initialGrid(start: Point): Grid {
-    return {
-        head: start,
-        tail: start,
+export function initialGrid(start: Point, numKnots: number) {
+    const knots = [];
+    for (let i = 0; i < numKnots; ++i) {
+        knots.push(start);
+    }
+    return { 
+        knots,
         visited: new Set([pointKey(start)]),
     };
 }
@@ -134,10 +139,20 @@ export function render(g: Grid) {
 
 export function part1(input: string): number {
     const moves = parseInput(input);
-    const grid = applyMoves(initialGrid(point(0, 0)), moves);
+    const grid = applyMoves(initialGrid(point(0, 0), 2), moves);
     return grid.visited.size;
 }
 
+
+export type Grid2 = {
+    head: Point;
+    knots: Point[];
+    visited: Set<string>;
+};
+
 export function part2(input: string): number {
-    return 0;
+    const moves = parseInput(input);
+    const grid = applyMoves(initialGrid(point(0, 0), 10), moves);
+    // render(grid);
+    return grid.visited.size;
 }
