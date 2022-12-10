@@ -8,6 +8,7 @@ import {
     pointKey,
     moveTail,
  } from "./solution";
+ import { readFileSync } from "fs";
 
 const testInput = 
 `R 4
@@ -31,6 +32,12 @@ describe("parseInput", () => {
             { direction: Direction.Left, steps: 5 },
             { direction: Direction.Right, steps: 2 },
         ]);
+    });
+
+    it("gets all the steps", () => {
+        const input = readFileSync("input.txt", "utf8").toString();
+        expect(parseInput(input).length).toBe(2000);
+
     });
 });
 

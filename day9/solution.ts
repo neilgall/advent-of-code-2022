@@ -104,11 +104,13 @@ export function applyMoves(g: Grid, ms: Move[]): Grid {
     return grid;
 }
 
-const initialGrid = {
-    head: point(0, 0),
-    tail: point(0, 0),
-    visited: new Set([pointKey(point(0, 0))]),
-};
+function initialGrid(start: Point): Grid {
+    return {
+        head: start,
+        tail: start,
+        visited: new Set([pointKey(start)]),
+    };
+}
 
 export function render(g: Grid) {
     let minx = 0, maxx = 0, miny = 0, maxy = 0;
@@ -132,7 +134,7 @@ export function render(g: Grid) {
 
 export function part1(input: string): number {
     const moves = parseInput(input);
-    const grid = applyMoves(initialGrid, moves);
+    const grid = applyMoves(initialGrid(point(0, 0)), moves);
     return grid.visited.size;
 }
 
