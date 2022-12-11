@@ -1,4 +1,5 @@
 import { 
+    iterateMonkeys,
     parseInput,
     part1,
     part2,
@@ -51,26 +52,42 @@ describe("parseInput", () => {
         expect(monkeys).toStrictEqual([
             { 
                 id: 0,
-                startingItems: [79, 98],
-                operation: { type: "*", lhs: { type: "var", name: "old" }, rhs: { type: "lit", value: 19 }},
+                items: [79, 98],
+                operation: { 
+                    type: "*",
+                    lhs: { type: "term", term: { type: "var", name: "old" } },
+                    rhs: { type: "term", term: { type: "lit", value: 19 } },
+                },
                 condition: { type: "div", by: 23, ifTrue: 2, ifFalse: 3 }
             },
             {
                 id: 1,
-                startingItems: [54, 65, 75, 74],
-                operation: { type: "+", lhs: { type: "var", name: "old" }, rhs: { type: "lit", value: 6 }},
+                items: [54, 65, 75, 74],
+                operation: { 
+                    type: "+", 
+                    lhs: { type: "term", term: { type: "var", name: "old" } },
+                    rhs: { type: "term", term: { type: "lit", value: 6 } },
+                },
                 condition: { type: "div", by: 19, ifTrue: 2, ifFalse: 0 },
             },
             {
                 id: 2,
-                startingItems: [79, 60, 97],
-                operation: { type: "*", lhs: { type: "var", name: "old" }, rhs: { type: "var", name: "old" }},
+                items: [79, 60, 97],
+                operation: { 
+                    type: "*", 
+                    lhs: { type: "term", term: { type: "var", name: "old" } },
+                    rhs: { type: "term", term: { type: "var", name: "old" } },
+                },
                 condition: { type: "div", by: 13, ifTrue: 1, ifFalse: 3 },
             },
             {
                 id: 3,
-                startingItems: [74],
-                operation: { type: "+", lhs: { type: "var", name: "old" }, rhs: { type: "lit", value: 3 }},
+                items: [74],
+                operation: { 
+                    type: "+", 
+                    lhs: { type: "term", term: { type: "var", name: "old" } },
+                    rhs: { type: "term", term: { type: "lit", value: 3 } },
+                },
                 condition: { type: "div", by: 17, ifTrue: 0, ifFalse: 1 },
             },
         ]);
@@ -79,8 +96,41 @@ describe("parseInput", () => {
 
 
 describe("part1", () => {
+    it("performs a single iteration correctly", () => {
+        const monkeys = parseInput(testInput);
+        iterateMonkeys(monkeys, 1);
+        expect(monkeys[0].items).toStrictEqual([20, 23, 27, 26]);
+        expect(monkeys[1].items).toStrictEqual([2080, 25, 167, 207, 401, 1046]);
+        expect(monkeys[2].items).toHaveLength(0);
+        expect(monkeys[3].items).toHaveLength(0);
+    });
+
+    it("performs two iterations correctly", () => {
+        const monkeys = parseInput(testInput);
+        iterateMonkeys(monkeys, 2);
+        expect(monkeys[0].items).toStrictEqual([695, 10, 71, 135, 350]);
+        expect(monkeys[1].items).toStrictEqual([43, 49, 58, 55, 362]);
+        expect(monkeys[2].items).toHaveLength(0);
+        expect(monkeys[3].items).toHaveLength(0);
+    });
+
+    it("performs 20 iterations correctly", () => {
+        const monkeys = parseInput(testInput);
+        iterateMonkeys(monkeys, 20);
+        expect(monkeys[0].items).toStrictEqual([10, 12, 14, 26, 34]);
+        expect(monkeys[1].items).toStrictEqual([245, 93, 53, 199, 115]);
+        expect(monkeys[2].items).toHaveLength(0);
+        expect(monkeys[3].items).toHaveLength(0);
+    });
+
+    it("counts inspections correctly", () => {
+        const monkeys = parseInput(testInput);
+        const inspections = iterateMonkeys(monkeys, 20);
+        expect(inspections).toStrictEqual([101, 95, 7, 105]);
+    });
+
     it("calculates the correct answer", () => {
-        expect(part1(testInput)).toBe(0);
+        expect(part1(testInput)).toBe(10605);
     });
 });
 
