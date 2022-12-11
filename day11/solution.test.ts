@@ -1,11 +1,15 @@
 import { 
+    calculateMod,
     iterateMonkeys,
     parseInput,
     part1,
+    part1Reducer,
     part2,
+    part2Reducer,
+    WorryLevel,
  } from "./solution";
 import {
-    integer,
+    number,
     literal,
     ParseOk,
     whitespace
@@ -43,7 +47,7 @@ Test: divisible by 17
 
 describe("parseInput", () => {
     it("parses the monkey line", () => {
-        const p = integer.between(literal("Monkey "), literal(":")).followedBy(whitespace);
+        const p = number.between(literal("Monkey "), literal(":")).followedBy(whitespace);
         expect(p.parse("Monkey 0:\n")).toStrictEqual(new ParseOk(0, ""));
     });
 
@@ -96,27 +100,27 @@ describe("parseInput", () => {
 
 
 describe("part1", () => {
-    it("performs a single iteration correctly", () => {
+    it("performs a single round correctly", () => {
         const monkeys = parseInput(testInput);
-        iterateMonkeys(monkeys, 1);
+        iterateMonkeys(monkeys, 1, part1Reducer);
         expect(monkeys[0].items).toStrictEqual([20, 23, 27, 26]);
         expect(monkeys[1].items).toStrictEqual([2080, 25, 167, 207, 401, 1046]);
         expect(monkeys[2].items).toHaveLength(0);
         expect(monkeys[3].items).toHaveLength(0);
     });
 
-    it("performs two iterations correctly", () => {
+    it("performs two rounds correctly", () => {
         const monkeys = parseInput(testInput);
-        iterateMonkeys(monkeys, 2);
+        iterateMonkeys(monkeys, 2, part1Reducer);
         expect(monkeys[0].items).toStrictEqual([695, 10, 71, 135, 350]);
         expect(monkeys[1].items).toStrictEqual([43, 49, 58, 55, 362]);
         expect(monkeys[2].items).toHaveLength(0);
         expect(monkeys[3].items).toHaveLength(0);
     });
 
-    it("performs 20 iterations correctly", () => {
+    it("performs 20 rounds correctly", () => {
         const monkeys = parseInput(testInput);
-        iterateMonkeys(monkeys, 20);
+        iterateMonkeys(monkeys, 20, part1Reducer);
         expect(monkeys[0].items).toStrictEqual([10, 12, 14, 26, 34]);
         expect(monkeys[1].items).toStrictEqual([245, 93, 53, 199, 115]);
         expect(monkeys[2].items).toHaveLength(0);
@@ -125,7 +129,7 @@ describe("part1", () => {
 
     it("counts inspections correctly", () => {
         const monkeys = parseInput(testInput);
-        const inspections = iterateMonkeys(monkeys, 20);
+        const inspections = iterateMonkeys(monkeys, 20, part1Reducer);
         expect(inspections).toStrictEqual([101, 95, 7, 105]);
     });
 
@@ -136,7 +140,31 @@ describe("part1", () => {
 
 
 describe("part2", () => {
+    it("calculates the modulo", () => {
+        const monkeys = parseInput(testInput);
+        const mod = calculateMod(monkeys);
+        expect(mod).toBe(23 * 19 * 13 * 17);        
+    });
+
+    it("counts inspections correctly after one round", () => {
+        const monkeys = parseInput(testInput);
+        const inspections = iterateMonkeys(monkeys, 1, part2Reducer(monkeys));
+        expect(inspections).toStrictEqual([2, 4, 3, 6]);
+    });
+
+    it("counts inspections correctly after 20 rounds", () => {
+        const monkeys = parseInput(testInput);
+        const inspections = iterateMonkeys(monkeys, 20, part2Reducer(monkeys));
+        expect(inspections).toStrictEqual([99, 97, 8, 103]);
+    });
+
+    it("counts inspections correctly after 10,000 rounds", () => {
+        const monkeys = parseInput(testInput);
+        const inspections = iterateMonkeys(monkeys, 10_000, part2Reducer(monkeys));
+        expect(inspections).toStrictEqual([52166, 47830, 1938, 52013]);
+    });
+
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(2713310158);
     });
 });

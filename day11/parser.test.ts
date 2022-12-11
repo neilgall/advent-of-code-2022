@@ -1,16 +1,16 @@
-import { integer, literal, ParseErr, ParseOk, whitespace, word, anyOf } from "./parser"
+import { number, literal, ParseErr, ParseOk, whitespace, word, anyOf } from "./parser"
 
 describe("integer", () => {
     it("parses ints", () => {
-        expect(integer.parse("123")).toStrictEqual(new ParseOk(123, ""));
+        expect(number.parse("123")).toStrictEqual(new ParseOk(123, ""));
     });
 
     it("includes the remainer", () => {
-        expect(integer.parse("123:")).toStrictEqual(new ParseOk(123, ":"));
+        expect(number.parse("123:")).toStrictEqual(new ParseOk(123, ":"));
     });
 
     it("rejects non-integers", () => {
-        expect(integer.parse("foo")).toStrictEqual(new ParseErr("integer", "foo"));
+        expect(number.parse("foo")).toStrictEqual(new ParseErr("integer", "foo"));
     });
 });
 
@@ -95,7 +95,7 @@ describe("anyOf", () => {
 });
 
 describe("after", () => {
-    const p = integer.after(literal("foo"));
+    const p = number.after(literal("foo"));
     it("ignores the prefix", () => {
         expect(p.parse("foo123bar")).toStrictEqual(new ParseOk(123, "bar"));
     });
@@ -111,7 +111,7 @@ describe("after", () => {
 
 
 describe("followedBy", () => {
-    const p = integer.followedBy(literal("foo"));
+    const p = number.followedBy(literal("foo"));
     it("ignores the suffix", () => {
         expect(p.parse("123foobar")).toStrictEqual(new ParseOk(123, "bar"));
     });
@@ -131,7 +131,7 @@ describe("followedBy", () => {
 });
 
 describe("between", () => {
-    const p = integer.between(literal("["), literal("]"));
+    const p = number.between(literal("["), literal("]"));
     it("ignores the before and after", () => {
         expect(p.parse("[123]foo")).toStrictEqual(new ParseOk(123, "foo"));
     });
@@ -150,7 +150,7 @@ describe("between", () => {
 });
 
 describe("sepBy", () => {
-    const p = integer.sepBy(literal(","));
+    const p = number.sepBy(literal(","));
     it.each([
         ["1,2,3,4", [1,2,3,4]],
         ["1", [1]],
@@ -167,7 +167,7 @@ describe("sepBy", () => {
     });
 
     it("complex example", () => {
-        const p = integer.sepBy(literal(",").followedBy(whitespace)); //.between(literal("["), literal("]"));
+        const p = number.sepBy(literal(",").followedBy(whitespace)); //.between(literal("["), literal("]"));
         expect(p.parse("1, 2,  3,4")).toStrictEqual(new ParseOk([1,2,3,4], ""));
     });
 });

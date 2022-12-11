@@ -145,11 +145,20 @@ export class Parser<T> {
         
 }
 
-export const integer: Parser<number> = new Parser(
+export const number: Parser<number> = new Parser(
     (s: string) => {
         const m = /^(\d+)/m.exec(s);
         return m 
             ? new ParseOk(Number(m[1]), s.substring(m[1].length)) 
+            : new ParseErr("integer", s);
+    }
+);
+
+export const bigInt: Parser<bigint> = new Parser(
+    (s: string) => {
+        const m = /^(\d+)/m.exec(s);
+        return m 
+            ? new ParseOk(BigInt(m[1]), s.substring(m[1].length)) 
             : new ParseErr("integer", s);
     }
 );
