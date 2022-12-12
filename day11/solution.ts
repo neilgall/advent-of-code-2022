@@ -9,7 +9,7 @@ import {
     anyOf,
     Parser,
     Parsed
-} from "./parser";
+} from "../lib/parser";
 
 export type WorryLevel = number;
 

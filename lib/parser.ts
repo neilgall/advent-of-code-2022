@@ -1,5 +1,3 @@
-import CallableInstance from "callable-instance";
-
 export class ParseOk<T> {
     public readonly ok: true = true;
     constructor(

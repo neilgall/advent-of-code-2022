@@ -13,7 +13,7 @@ import {
     literal,
     ParseOk,
     whitespace
-} from "./parser";
+} from "../lib/parser";
 
 const testInput = 
 `Monkey 0:
