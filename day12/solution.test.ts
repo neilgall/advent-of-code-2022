@@ -21,15 +21,15 @@ describe("parseInput", () => {
                 [0, 2, 2, 19, 20, 21, 22, 9],
                 [0, 1, 3, 4, 5, 6, 7, 8]
             ],
-            target: { x: 5, y: 2 }
+            start: { x: 0, y: 0 },
+            target: { x: 5, y: 2 },
         });
     });
 });
 
-
 describe("part1", () => {
     it("calculates the correct answer", () => {
-        expect(part1(testInput)).toBe(0);
+        expect(part1(testInput)).toBe(31);
     });
 });
 
