@@ -36,6 +36,6 @@ describe("part1", () => {
 
 describe("part2", () => {
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(29);
     });
 });

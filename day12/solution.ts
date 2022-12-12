@@ -48,6 +48,13 @@ export function* points(map: ElevationMap): Generator<Point> {
     }
 }
 
+export function* lowPoints(map: ElevationMap): Generator<Point> {
+    for (const p of points(map)) {
+        if (mapAt(map, p) === 0)
+            yield p;
+    }
+}
+
 export function* neighbours(map: ElevationMap, p: Point): Generator<Point> {
     if (p.y > 0)
         yield { x: p.x, y: p.y - 1};
@@ -59,7 +66,7 @@ export function* neighbours(map: ElevationMap, p: Point): Generator<Point> {
         yield { x: p.x + 1, y: p.y };
 }
 
-export function dijkstra(map: ElevationMap): number {
+export function dijkstra(map: ElevationMap): number | undefined {
     const unvisited: Set<string> = new Set();
     const dist: { [point: string]: number } = {};
     for (const p of points(map)) {
@@ -68,44 +75,54 @@ export function dijkstra(map: ElevationMap): number {
     }
     dist[pointKey(map.start)] = 0;
 
-    function unvisitedWithMinDist(): [Point, number] {
-        let d: number | undefined;
+    function unvisitedWithMinDist(): [Point | undefined, number] {
         let p: Point | undefined;
+        let d: number = Number.MAX_SAFE_INTEGER;
         for (const u of unvisited) {
-            if (d === undefined || dist[u] < d) {
-                d = dist[u];
+            if (p === undefined || dist[u] < d) {
                 p = keyPoint(u);
+                d = dist[u];
             }
         }
-        return [p!, d!];
+        return [p, d];
     }
 
     while (unvisited.size > 0) {
         const [u, ud] = unvisitedWithMinDist();
+        if (u === undefined) {
+            // no route from this start point
+            return undefined;
+        }
+
         const hu = mapAt(map, u);
-        let visited = false;
+        unvisited.delete(pointKey(u));
 
         for (const n of neighbours(map, u)) {
             if (mapAt(map, n) - hu <= 1) {
-                visited = true;
                 if (ud + 1 < dist[pointKey(n)]) {
                     dist[pointKey(n)] = ud + 1;
                 }
             }
         }
-
-        if (visited)
-            unvisited.delete(pointKey(u));
     }
 
     return dist[pointKey(map.target)];
 }
 
-export function part1(input: string): number {
+export function part1(input: string): number | undefined {
     const map = parseInput(input);
     return dijkstra(map);
 }
 
-export function part2(input: string): number {
-    return 0;
+export function part2(input: string): number | undefined {
+    const map = parseInput(input);
+    let minDistance: number | undefined;
+    for (const lp of lowPoints(map)) {
+        map.start = lp;
+        const d = dijkstra(map);
+        if (d !== undefined && (minDistance === undefined || d < minDistance)) {
+            minDistance = d;
+        }
+    }
+    return minDistance;
 }
