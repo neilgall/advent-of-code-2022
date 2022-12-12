@@ -53,57 +53,34 @@ impl ElevationMap {
         self.points().filter(|p| self[p] == 0)
     }
 
-    fn neighbours(&self, p: &Point) -> Vec<Point> {
-        let mut ns = vec![];
-        if p.0 > 0 { ns.push(Point(p.0 - 1, p.1)); }
-        if p.1 > 0 { ns.push(Point(p.0, p.1 - 1)); }
-        if p.0 < self.cells[0].len() - 1 { ns.push(Point(p.0 + 1, p.1)) }
-        if p.1 < self.cells.len() - 1 { ns.push(Point(p.0, p.1 + 1)) }
-        ns
+    fn neighbours(&self, p: Point) -> NeighbourIterator<'_> {
+        return NeighbourIterator::new(&self, p);
     }
 
     fn dijkstra(&self, start: &Point) -> Option<Distance> {
-        let mut unvisited: HashSet<Point> = HashSet::new();
-        let mut dist: HashMap<Point, Distance> = HashMap::new();
-        self.points().for_each(|p| {
-            unvisited.insert(p);
-            dist.insert(p, Distance::MAX);
-        });
+        let mut unvisited: HashSet<Point> = self.points().collect();
+        let mut dist = DistanceMap::new();
         dist.insert(*start, 0);
 
-        fn unvisited_with_min_dist(
-            unvisited: &HashSet<Point>, 
-            dist: &HashMap<Point, Distance>
-        ) -> (Option<Point>, Distance) {
-            let mut p: Option<Point> = None;
-            let mut d: Distance = Distance::MAX;
-            unvisited.iter().for_each(|u| {
-                if p.is_none() || dist[&u] < d {
-                    p = Some(*u);
-                    d = dist[&u];
-                }
-            });
-            (p, d)
-        }
-        
         while !unvisited.is_empty() {
-            let (u, ud) = unvisited_with_min_dist(&unvisited, &dist);
+            let u = unvisited.iter().min_by_key(|u| dist[&u]);
             if u.is_none() {
                 return None;
             }
-            let u = &u.unwrap();
+            let u: Point = *u.unwrap();
+            let ud = dist[&u];
+            let hu = self[&u];
 
-            let hu = self[u];
             unvisited.remove(&u);
-    
-            self.neighbours(&u).iter().for_each(|n| {
-                if self[n] - hu <= 1 && ud < dist[n] - 1 {
-                    dist.insert(*n, ud + 1);
+            self.neighbours(u).for_each(|n| {
+                let nd = dist[&n];
+                if self[&n] - hu <= 1 && ud < nd - 1 {
+                    dist.insert(n, ud + 1);
                 }
             });
         }
     
-        return Some(dist[&self.target]);
+        return Some(dist[&self.target])
     }
 }
 
@@ -114,6 +91,70 @@ impl Index<&Point> for ElevationMap {
         return &self.cells[p.1][p.0];
     }
 }
+
+struct DistanceMap(HashMap<Point, Distance>);
+
+impl DistanceMap {
+    fn new() -> Self {
+        Self(HashMap::new())
+    }
+
+    fn insert(&mut self, p: Point, d: Distance) {
+        self.0.insert(p, d);
+    }
+}
+
+impl Index<&Point> for DistanceMap {
+    type Output = Distance;
+
+    fn index(&self, p: &Point) -> &Self::Output {
+        self.0.get(p).unwrap_or(&Distance::MAX)
+    }
+}
+
+struct NeighbourIterator<'a> {
+    map: &'a ElevationMap,
+    p: Point,
+    i: usize
+}
+
+impl<'a> NeighbourIterator<'a> {
+    fn new(map: &'a ElevationMap, p: Point) -> Self {
+        NeighbourIterator {
+            map,
+            p,
+            i: 0
+        }
+    }
+}
+
+impl<'a> Iterator for NeighbourIterator<'a> {
+    type Item = Point;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while self.i < 4 {
+            let i = self.i;
+            self.i += 1;
+            match i {
+                0 if self.p.0 > 0 => {
+                    return Some(Point(self.p.0 - 1, self.p.1));
+                }
+                1 if self.p.1 > 0 => { 
+                    return Some(Point(self.p.0, self.p.1 - 1));
+                }
+                2 if self.p.0 < self.map.cells[0].len() - 1 => { 
+                    return Some(Point(self.p.0 + 1, self.p.1));
+                }
+                3 if self.p.1 < self.map.cells.len() - 1 => { 
+                    return Some(Point(self.p.0, self.p.1 + 1));
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+}
+
 
 fn part1(input: &str) -> Option<Distance> {
     let map = ElevationMap::from(input);
