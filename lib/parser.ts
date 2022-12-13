@@ -209,3 +209,15 @@ export function quad<P1, P2, P3, P4, R>(
 ): Parser<R> {
     return p1.then(p2).then(p3).then(p4).map(([[[r1, r2], r3], r4]) => f(r1, r2, r3, r4));
 }
+
+export class ParserRef<T> {
+    private p: Parser<T> | undefined;
+
+    public set(p: Parser<T>) { this.p = p }
+    public get(): Parser<T> { 
+        return new Parser((s: string) => {
+            if (!this.p) throw new Error("ParserRef used before setting");
+            return this.p.parse(s);
+        });
+    }
+};

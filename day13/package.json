@@ -1,0 +1,19 @@
+{
+  "name": "day13",
+  "version": "1.0.0",
+  "description": "",
+  "main": "shell.ts",
+  "scripts": {
+    "start": "ts-node shell",
+    "test": "jest"
+  },
+  "author": "Neil Gall",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.2.3",
+    "jest": "^29.3.1",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  }
+}
