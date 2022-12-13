@@ -47,26 +47,25 @@ export function parseInput(input: string): PacketPair[] {
 }
 
 export enum CompareResult {
-    Ordered,
-    NotOrdered,
-    Unknown,
+    Ordered = -1,
+    Unknown = 0,
+    NotOrdered = 1,
 };
 
 export function isNumber(x: any): boolean {
     return typeof(x) === "number";
 }
 
-export function comparePacketPair(pp: PacketPair): CompareResult {
-    const [left, right] = pp;
+export function comparePacketPair(left: PacketData, right: PacketData): CompareResult {
     if (isNumber(left) && isNumber(right)) {
         if (left < right) return CompareResult.Ordered;
         else if (left > right) return CompareResult.NotOrdered;
         else return CompareResult.Unknown;
     }
     else if (isNumber(left)) {
-        return comparePacketPair([[left], right]);
+        return comparePacketPair([left], right);
     } else if (isNumber(right)) {
-        return comparePacketPair([left, [right]]);
+        return comparePacketPair(left, [right]);
     } else {
         const l = left as PacketData[];
         const r = right as PacketData[];
@@ -76,7 +75,7 @@ export function comparePacketPair(pp: PacketPair): CompareResult {
             } else if (i == l.length) {
                 return CompareResult.Ordered;
             } else {
-                const c = comparePacketPair([l[i], r[i]]);
+                const c = comparePacketPair(l[i], r[i]);
                 if (c !== CompareResult.Unknown) {
                     return c;
                 }
@@ -86,14 +85,24 @@ export function comparePacketPair(pp: PacketPair): CompareResult {
     }
 }
 
-
 export function part1(input: string): number {
     const pairs = parseInput(input);
-    return sum(pairs.map((p, i) =>
-        comparePacketPair(p) === CompareResult.Ordered ? i+1 : 0
+    return sum(pairs.map(([l, r], i) =>
+        comparePacketPair(l, r) === CompareResult.Ordered ? i+1 : 0
     ));
 }
 
 export function part2(input: string): number {
-    return 0;
-} 
+    const pairs = parseInput(input);
+    const packets: PacketData[] = [
+        [[2]],
+        [[6]],
+        ...pairs.map(([l, _]) => l),
+        ...pairs.map(([_, r]) => r),
+    ];
+    const sorted = packets.sort(comparePacketPair);
+    const strs = sorted.map((p) => JSON.stringify(p));
+    const two = strs.indexOf("[[2]]") + 1;
+    const six = strs.indexOf("[[6]]") + 1;
+    return two * six;
+}

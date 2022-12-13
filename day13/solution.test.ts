@@ -63,7 +63,7 @@ describe("comparePacketPair", () => {
         [[[[]]], [[]], CompareResult.NotOrdered],
         [[1,[2,[3,[4,[5,6,7]]]],8,9], [1,[2,[3,[4,[5,6,0]]]],8,9], CompareResult.NotOrdered]
     ])("%s vs %s should be %s", (left, right, expected) => {
-        expect(comparePacketPair([left, right])).toBe(expected);
+        expect(comparePacketPair(left, right)).toBe(expected);
     });
 });
 
@@ -76,6 +76,6 @@ describe("part1", () => {
 
 describe("part2", () => {
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(140);
     });
 });
