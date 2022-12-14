@@ -3,6 +3,22 @@ export type Point = {
     y: number;
 };
 
+export function up(p: Point): Point {
+    return { x: p.x, y: p.y - 1 };
+}
+
+export function down(p: Point): Point {
+    return { x: p.x, y: p.y + 1 };
+}
+
+export function left(p: Point): Point {
+    return { x: p.x - 1, y: p.y };
+}
+
+export function right(p: Point): Point {
+    return { x: p.x + 1, y: p.y };
+}
+
 export class PointMap<T> {
     private readonly keys: Point[];
     private readonly map: Map<Point, T>;
@@ -24,15 +40,19 @@ export class PointMap<T> {
     }
 
     private key(p: Point): Point {
-        if (p.x < this.topLeft.x 
-            || this.bottomRight.x < p.x
-            || p.y < this.topLeft.y
-            || this.bottomRight.y < p.y) {
+        if (!this.contains(p)) {
             throw new Error(`invalid point ${p.x},${p.y}`);
         }
         const width = this.bottomRight.x - this.topLeft.x + 1;
         const index = (p.x - this.topLeft.x) + (p.y - this.topLeft.y) * width;
         return this.keys[index];
+    }
+
+    public contains(p: Point): boolean {
+        return (this.topLeft.x <= p.x
+            && this.topLeft.y <= p.y
+            && p.x <= this.bottomRight.x
+            && p.y <= this.bottomRight.y);
     }
 
     public set(p: Point, value: T) {

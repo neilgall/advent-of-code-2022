@@ -24,7 +24,7 @@ describe("parseInput", () => {
 describe("buildCave", () => {
     it("draws the rock structure", () => {
         const cave = buildCave(parseInput(testInput));
-        const draw = Array.from(cave.render((t) => 
+        const draw = Array.from(cave.map.render((t) => 
             [".", "#", "+", "o"][t]
         ));
         expect(draw).toStrictEqual([
@@ -44,7 +44,7 @@ describe("buildCave", () => {
 
 describe("part1", () => {
     it("calculates the correct answer", () => {
-        expect(part1(testInput)).toBe(0);
+        expect(part1(testInput)).toBe(24);
     });
 });
 

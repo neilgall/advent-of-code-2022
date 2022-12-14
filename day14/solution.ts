@@ -1,5 +1,5 @@
 import { triple, number, literal, Parser } from "../lib/parser";
-import { Point, PointMap } from "../lib/pointMap";
+import { down, left, Point, PointMap, right } from "../lib/pointMap";
 
 export type Trace = Point[];
 
@@ -43,27 +43,33 @@ export enum Tile {
     Sand = 3,
 };
 
-export type Cave = PointMap<Tile>;
+export type Cave = {
+    map: PointMap<Tile>;
+    entry: Point
+};
 
 export function buildCave(traces: Trace[]): Cave {
     const entryPoint = { x: 500, y: 0 };
     const [topLeft, bottomRight] = boundingBox([
         ...traces, [entryPoint]
     ]);
-    const cave = new PointMap(topLeft, bottomRight, Tile.Air);
-    cave.set(entryPoint, Tile.Entry);
+    const cave = {
+        map: new PointMap(topLeft, bottomRight, Tile.Air),
+        entry: entryPoint
+    };
+    cave.map.set(entryPoint, Tile.Entry);
 
     function draw(start: Point, end: Point) {
         if (start.y == end.y) {
             for (let x =  Math.min(start.x, end.x);
                      x <= Math.max(start.x, end.x);
                      x++)
-                cave.set({ x, y: start.y }, Tile.Rock);
+                cave.map.set({ x, y: start.y }, Tile.Rock);
         } else {
             for (let y =  Math.min(start.y, end.y);
                      y <= Math.max(start.y, end.y);
                      y++)
-                cave.set({ x: start.x, y }, Tile.Rock);
+                cave.map.set({ x: start.x, y }, Tile.Rock);
         }
     }
 
@@ -80,8 +86,43 @@ export function buildCave(traces: Trace[]): Cave {
     return cave;
 }
 
+export function dropSand(cave: Cave): boolean {
+    let p = cave.entry;
+    while (cave.map.contains(p)) {
+        const d = down(p);
+        if (!cave.map.contains(d) || cave.map.get(d) === Tile.Air) {
+            p = d;
+            continue;
+        }
+        else if (!cave.map.contains(left(d)) || cave.map.get(left(d)) === Tile.Air) {
+            p = left(d);
+            continue;
+        }
+        else if (!cave.map.contains(right(d)) || cave.map.get(right(d)) === Tile.Air) {
+            p = right(d);
+            continue;
+        }
+        break;
+    }
+    if (cave.map.contains(p)) {
+        cave.map.set(p, Tile.Sand);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+export function fillWithSand(cave: Cave): number {
+    let count = 0;
+    while (dropSand(cave)) {
+        count += 1;
+    }
+    return count;
+}
+
 export function part1(input: string): number {
-    return 0;
+    const cave = buildCave(parseInput(input));
+    return fillWithSand(cave);
 }
 
 export function part2(input: string): number {
