@@ -1,7 +1,9 @@
 import { 
+    buildCave,
     parseInput,
     part1,
     part2,
+    Tile,
  } from "./solution";
 
 const testInput = 
@@ -18,6 +20,27 @@ describe("parseInput", () => {
     });
 });
 
+
+describe("buildCave", () => {
+    it("draws the rock structure", () => {
+        const cave = buildCave(parseInput(testInput));
+        const draw = Array.from(cave.render((t) => 
+            [".", "#", "+", "o"][t]
+        ));
+        expect(draw).toStrictEqual([
+            "......+...",
+            "..........",
+            "..........",
+            "..........",
+            "....#...##",
+            "....#...#.",
+            "..###...#.",
+            "........#.",
+            "........#.",
+            "#########.",
+        ]);
+    });
+});
 
 describe("part1", () => {
     it("calculates the correct answer", () => {

@@ -2,7 +2,7 @@ import { PointMap } from "./pointMap";
 
 describe("PointMap", () => {
     it("retrieves values for points", () => {
-        const m = new PointMap<string>(10, 10, "");
+        const m = new PointMap<string>({ x: 0, y: 0 }, { x: 9, y: 9 }, "");
         m.set({ x: 3, y: 2 }, "foo");
         m.set({ x: 9, y: 4 }, "bar");
         expect(m.get({ x: 3, y: 2 })).toBe("foo");
@@ -16,7 +16,7 @@ describe("PointMap", () => {
         { x: 0, y: -1 },
         { x: 9, y: 10 },
     ])("rejects invalid point %s", (p) => {
-        const m = new PointMap(10, 10, "");
+        const m = new PointMap({ x: 0, y: 0 }, { x: 9, y: 9 }, "");
         expect(() => m.set(p, "foo")).toThrowError(`invalid point ${p.x},${p.y}`);
         expect(() => m.get(p)).toThrowError(`invalid point ${p.x},${p.y}`);
     });
