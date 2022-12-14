@@ -1,5 +1,5 @@
 import { triple, number, literal, Parser } from "../lib/parser";
-import { down, left, Point, PointMap, right } from "../lib/pointMap";
+import { down, left, Point, UnboundedPointMap, right, PointMap, BoundedPointMap } from "../lib/pointMap";
 
 export type Trace = Point[];
 
@@ -45,19 +45,12 @@ export enum Tile {
 
 export type Cave = {
     map: PointMap<Tile>;
-    entry: Point
+    entry: Point,
+    floor?: number
 };
 
-export function buildCave(traces: Trace[]): Cave {
-    const entryPoint = { x: 500, y: 0 };
-    const [topLeft, bottomRight] = boundingBox([
-        ...traces, [entryPoint]
-    ]);
-    const cave = {
-        map: new PointMap(topLeft, bottomRight, Tile.Air),
-        entry: entryPoint
-    };
-    cave.map.set(entryPoint, Tile.Entry);
+export function buildCave(cave: Cave, traces: Trace[]) {
+    cave.map.set(cave.entry, Tile.Entry);
 
     function draw(start: Point, end: Point) {
         if (start.y == end.y) {
@@ -86,29 +79,63 @@ export function buildCave(traces: Trace[]): Cave {
     return cave;
 }
 
+export function makeBoundedCave(traces: Trace[]): Cave {
+    const entryPoint = { x: 500, y: 0 };
+    const [topLeft, bottomRight] = boundingBox([
+        ...traces,
+        [entryPoint],
+    ]);
+    const cave = {
+        map: new BoundedPointMap(topLeft, bottomRight, Tile.Air),
+        entry: entryPoint,
+    };
+    buildCave(cave, traces);
+    return cave;
+}
+
+export function makeUnboundedCave(traces: Trace[]): Cave {
+    const [_, bottomRight] = boundingBox(traces);
+    const cave = {
+        map: new UnboundedPointMap(Tile.Air),
+        entry: { x: 500, y: 0 },
+        floor: bottomRight.y + 1
+    };
+    buildCave(cave, traces);
+    return cave;
+}
+
 export function dropSand(cave: Cave): boolean {
     let p = cave.entry;
-    while (cave.map.contains(p)) {
+    while (true) {
+        if (p.y === cave.floor) {
+            cave.map.set(p, Tile.Sand);
+            return true;
+        }
         const d = down(p);
-        if (!cave.map.contains(d) || cave.map.get(d) === Tile.Air) {
+        if (!cave.map.contains(d)) {
+            return false;
+        }
+        else if (cave.map.get(d) === Tile.Air) {
             p = d;
             continue;
         }
-        else if (!cave.map.contains(left(d)) || cave.map.get(left(d)) === Tile.Air) {
+        else if (!cave.map.contains(left(d))) {
+            return false; 
+        }
+        else if (cave.map.get(left(d)) === Tile.Air) {
             p = left(d);
             continue;
         }
-        else if (!cave.map.contains(right(d)) || cave.map.get(right(d)) === Tile.Air) {
+        else if (!cave.map.contains(right(d))) {
+            return false;
+        }
+        else if (cave.map.get(right(d)) === Tile.Air) {
             p = right(d);
             continue;
         }
-        break;
-    }
-    if (cave.map.contains(p)) {
+        
         cave.map.set(p, Tile.Sand);
         return true;
-    } else {
-        return false;
     }
 }
 
@@ -120,11 +147,21 @@ export function fillWithSand(cave: Cave): number {
     return count;
 }
 
+export function fillWithSand2(cave: Cave): number {
+    let count = 0;
+    while (cave.map.get(cave.entry) !== Tile.Sand) {
+        dropSand(cave);
+        count += 1;
+    }
+    return count;
+}
+
 export function part1(input: string): number {
-    const cave = buildCave(parseInput(input));
+    const cave = makeBoundedCave(parseInput(input));
     return fillWithSand(cave);
 }
 
 export function part2(input: string): number {
-    return 0;
+    const cave = makeUnboundedCave(parseInput(input));
+    return fillWithSand2(cave);
 }

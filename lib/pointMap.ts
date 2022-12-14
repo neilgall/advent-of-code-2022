@@ -19,7 +19,15 @@ export function right(p: Point): Point {
     return { x: p.x + 1, y: p.y };
 }
 
-export class PointMap<T> {
+export interface PointMap<T> {
+    render(tile: (t: T) => string): Generator<string>;
+    contains(p: Point): boolean;
+    set(p: Point, value: T): void;
+    get(p: Point): T;
+}
+
+
+export class BoundedPointMap<T> implements PointMap<T> {
     private readonly keys: Point[];
     private readonly map: Map<Point, T>;
 
@@ -73,3 +81,54 @@ export class PointMap<T> {
         }
     }
 };
+
+
+export class UnboundedPointMap<T> implements PointMap<T> {
+    private readonly map: { [p: string]: T };
+
+    constructor(private readonly defaultValue: T) {
+        this.map = {};
+    }
+
+    private key(p: Point): string {
+        return `${p.x},${p.y}`;
+    }
+
+    private unkey(s: string): Point {
+        const [x, y] = s.split(",").map(Number);
+        return { x, y };
+    }
+
+    public contains(_: Point): boolean {
+        return true;
+    }
+
+    public set(p: Point, value: T) {
+        this.map[this.key(p)] = value;
+    }
+
+    public get(p: Point): T {
+        return this.map[this.key(p)] || this.defaultValue;
+    }
+
+    public* render(tile: (t: T) => string): Generator<string> {
+        let minx = Number.MAX_SAFE_INTEGER,
+            miny = Number.MAX_SAFE_INTEGER,
+            maxx = Number.MIN_SAFE_INTEGER,
+            maxy = Number.MIN_SAFE_INTEGER;
+        Object.keys(this.map).forEach((key) => {
+            const p = this.unkey(key);
+            minx = Math.min(minx, p.x);
+            miny = Math.min(miny, p.y);
+            maxx = Math.max(maxx, p.x);
+            maxy = Math.max(maxy, p.y);
+        });
+        for (let y = miny; y <= maxy; ++y) {
+            let row = "";
+            for (let x = minx; x <= maxx; ++x) {
+                row += tile(this.get({ x, y }));
+            }
+            yield row;
+        }
+    }
+}

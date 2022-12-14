@@ -1,5 +1,6 @@
 import { 
     buildCave,
+    makeBoundedCave,
     parseInput,
     part1,
     part2,
@@ -21,9 +22,9 @@ describe("parseInput", () => {
 });
 
 
-describe("buildCave", () => {
+describe("makeBoundedCave", () => {
     it("draws the rock structure", () => {
-        const cave = buildCave(parseInput(testInput));
+        const cave = makeBoundedCave(parseInput(testInput));
         const draw = Array.from(cave.map.render((t) => 
             [".", "#", "+", "o"][t]
         ));
@@ -51,6 +52,6 @@ describe("part1", () => {
 
 describe("part2", () => {
     it("calculates the correct answer", () => {
-        expect(part2(testInput)).toBe(0);
+        expect(part2(testInput)).toBe(93);
     });
 });
