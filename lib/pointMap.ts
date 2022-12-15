@@ -19,7 +19,7 @@ export function right(p: Point): Point {
     return { x: p.x + 1, y: p.y };
 }
 
-export interface PointMap<T> {
+export interface PointMap<T> extends Iterable<Point> {
     render(tile: (t: T) => string): Generator<string>;
     contains(p: Point): boolean;
     set(p: Point, value: T): void;
@@ -71,6 +71,20 @@ export class BoundedPointMap<T> implements PointMap<T> {
         return this.map.get(this.key(p)) || this.defaultValue;
     }
 
+    public [Symbol.iterator](): Iterator<Point> {
+        let { x, y } = this.topLeft;
+        return {
+            next: () => {
+                const done = (x === this.bottomRight.x
+                              && y === this.bottomRight.y);
+                return {
+                    done,
+                    value: { x, y }
+                };
+            }
+        };
+    }
+
     public* render(tile: (t: T) => string): Generator<string> {
         for (let y = this.topLeft.y; y <= this.bottomRight.y; ++y) {
             let row = "";
@@ -109,6 +123,17 @@ export class UnboundedPointMap<T> implements PointMap<T> {
 
     public get(p: Point): T {
         return this.map[this.key(p)] || this.defaultValue;
+    }
+
+    public [Symbol.iterator](): Iterator<Point> {
+        const keys = Object.keys(this.map).map(this.unkey);
+        let i = 0;
+        return {
+            next: () => ({
+                done: i === keys.length-1,
+                value: keys[i]
+            })
+        };
     }
 
     public* render(tile: (t: T) => string): Generator<string> {

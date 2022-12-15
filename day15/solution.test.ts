@@ -42,10 +42,9 @@ describe("parseInput", () => {
     });
 });
 
-
 describe("part1", () => {
     it("calculates the correct answer", () => {
-        expect(part1(testInput)).toBe(0);
+        expect(part1(testInput, 10)).toBe(26);
     });
 });
 
