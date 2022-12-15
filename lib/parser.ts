@@ -145,10 +145,10 @@ export class Parser<T> {
 
 export const number: Parser<number> = new Parser(
     (s: string) => {
-        const m = /^(\d+)/m.exec(s);
+        const m = /^(\-?\d+)/m.exec(s);
         return m 
             ? new ParseOk(Number(m[1]), s.substring(m[1].length)) 
-            : new ParseErr("integer", s);
+            : new ParseErr("number", s);
     }
 );
 
@@ -172,10 +172,18 @@ export const word: Parser<string> = new Parser(
 
 export const whitespace: Parser<void> = new Parser(
     (s: string) => {
-        const m = /^(\s*)/.exec(s);
+        const m = /^(\s*)/m.exec(s);
         return m
             ? new ParseOk(undefined, s.substring(m[1].length))
             : new ParseErr("whitespace", s);
+    }
+);
+
+export const newline: Parser<void> = new Parser(
+    (s: string) => {
+        return s.startsWith("\n")
+            ? new ParseOk(undefined, s.substring(1))
+            : new ParseErr("newline", s);
     }
 );
 
